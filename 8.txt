@@ -1,0 +1,107 @@
+
+
+### **Phase 1: Jenkins Setup (Windows Adaptation)**
+
+Instead of downloading via Linux commands, you prepare your local Windows directory and run Jenkins.
+
+1. **Clean up old instances:** Open Command Prompt and remove any existing Jenkins configurations to start fresh:
+`rmdir /s /q .jenkins`
+2. **Prepare Directory:** `mkdir jenkins && cd jenkins`
+3. **Copy the Jenkins File:** Copy the downloaded `jenkins.war` into your new folder:
+`copy "C://Users/Students/Downloads/jenkins.war" "C://Users/Students/jenkins"`
+4. 
+**Run Jenkins:** Start the server on port 8080 (instead of 9090 like in the PDF ):
+`"C:\Program Files\OpenLogic\jdk-17.0.18.8-hotspot\bin\java" -jar jenkins.war --httpPort=8080`
+
+
+5. **Initial Setup:** Open a browser and go to `http://localhost:8080`. Copy the initial admin password generated in your Command Prompt output, paste it into the browser, and create your username and password.
+
+### **Phase 2: GitHub Project Setup**
+
+Instead of building locally first, this approach puts the code immediately on GitHub so Jenkins can pull it.
+
+1. Create a new GitHub repository.
+2. Inside the repository, create a file named `Hello.java` with this code:
+```java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+
+```
+
+
+3. Create your `pom.xml` file. This tells Maven how to build your Java 17 code:
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>helloworld</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>HelloWorldProject</name>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+</project>
+
+```
+
+
+4. Push these files to GitHub and copy your repository URL.
+
+### **Phase 3: Jenkins Configuration**
+
+You must tell Jenkins where your Windows tools are located.
+
+1. In the Jenkins dashboard, go to **Manage Jenkins** -> **Plugins**. Ensure you install: *Maven Integration*, *Pipeline*, *Git*, and *JUnit*.
+2. Go to **Manage Jenkins** -> **Global Tool Configuration**.
+3. **Configure JDK:** Uncheck "Install automatically", name it `JDK`, and paste your `JAVA_HOME` path (e.g., `C:\Program Files\java\openlogic-openjdk-17.0.18+8-windows-x64`).
+4. **Configure Git:** Uncheck "Install automatically" and provide the path to your `git.exe`.
+5. **Configure Maven:** Uncheck "Install automatically", name it `Maven`, and paste your `MAVEN_HOME` path (e.g., `C:\Users\Student\Downloads\apache-maven-3.9.12`).
+
+### **Phase 4: The Pipeline Setup**
+
+Here, you use your customized Windows pipeline script instead of the Linux script from the manual.
+
+1. On the Jenkins dashboard, click **New Item**, select **Pipeline**, name it, and click OK.
+2. Scroll down to the **Pipeline Script** section and paste your provided code. Notice how it uses `bat` (Windows commands) instead of `sh` (Linux commands):
+
+
+```groovy
+pipeline {
+    agent any
+    tools {
+        maven 'Maven'
+        jdk 'JDK'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Replace with your actual GitHub repo URL
+                git branch: 'main', url: 'https://github.com/swastisudha2025-source/devops_project.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+    }
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+        }
+    }
+}
+
+```
+
+
+3. Click **Save** and then click **Build Now**. Jenkins will pull the code from GitHub, build it using your local Maven, and test it!
