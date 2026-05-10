@@ -1,0 +1,102 @@
+Jenkins Setup
+Remove existing Jenkins folder
+
+rmdir /s /q .jenkins
+Download Jenkins and prepare directory
+
+mkdir jenkins && cd jenkins
+copy "C://Users/Students/Downloads/jenkins.war" "C://Users/Students/jemiims"
+Run Jenkins
+
+"C:\Program Files\OpenLogic\jdk-17.0.18.8-hotspot\bin\java" -jar jenkins.war --httpPort=8080
+Access Jenkins Dashboard
+
+Open browser → http://localhost:8080
+Copy the admin password from the CMD output.
+Create username & password.
+📂 GitHub Project Setup
+Create a repository and add:
+
+Hello.java
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+}
+pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>helloworld</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>HelloWorldProject</name>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+</project>
+Push files to GitHub and copy the repo link.
+
+⚙️ Jenkins Configuration
+Install Plugins
+
+Maven Integration
+Pipeline
+Git
+JUnit
+Configure Tools
+
+JDK → Path from where java
+Git → Path from where git
+Maven → Path from where mvn
+Example Maven setup:
+
+set MAVEN_HOME=C:\Users\Student\Downloads\apache-maven-3.9.12
+set PATH=%MAVEN_HOME%\bin;%PATH%
+mvn -version
+Confirm output shows Maven version and Java version.
+
+🚀 Pipeline Setup
+Create New Item → Pipeline
+
+Enter name → Select Pipeline → OK
+Pipeline Script
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven'
+        jdk 'JDK'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/swastisudha2025-source/devops_project.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+    }
+
+    post {
+        always {
+            junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+        }
+    }
+}
+Save & Apply → Build Pipeline
