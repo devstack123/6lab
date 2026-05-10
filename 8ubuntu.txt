@@ -1,0 +1,169 @@
+That is excellent news! Since you are using Ubuntu, **you can follow the original lab manual exactly as it is written.** Because Ansible is natively designed for Linux, you won't need any Windows workarounds, and you can successfully complete the full Continuous Deployment (CD) stage.
+
+Here is the complete, step-by-step guide for **Experiment 8** tailored exactly for your Ubuntu environment, combining the Jenkins and Ansible setups as defined in your PDFs.
+
+---
+
+### **Phase 1: Install Dependencies (Java & Maven)**
+
+Open your Ubuntu terminal and run these commands to download and configure Java 21 and Maven 3.9.5.
+
+**1. Install Java:**
+
+```bash
+wget https://download.oracle.com/java/21/latest/jdk-21_linux-x64_bin.tar.gz
+tar -xvzf jdk-21_linux-x64_bin.tar.gz
+mv jdk-21* ~/jdk21
+export JAVA_HOME=$HOME/jdk21
+export PATH=$JAVA_HOME/bin:$PATH
+java -version
+
+```
+
+**2. Install Maven:**
+
+```bash
+wget https://archive.apache.org/dist/maven/maven-3/3.9.5/binaries/apache-maven-3.9.5-bin.tar.gz
+tar -xvzf apache-maven-3.9.5-bin.tar.gz
+mv apache-maven-3.9.5 ~/maven
+echo 'export PATH=$PATH:~/maven/bin' >> ~/.bashrc
+source ~/.bashrc
+mvn -version
+
+```
+
+---
+
+### **Phase 2: Create the Java Project**
+
+Generate the boilerplate code using Maven.
+
+```bash
+cd ~
+mvn archetype:generate -DgroupId=com.example -DartifactId=hello-world -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+
+```
+
+Open the `~/hello-world/pom.xml` file and ensure it includes the `maven-jar-plugin` configuration specified in your manual so the JAR file knows where the main class (`com.example.App`) is located.
+
+---
+
+### **Phase 3: Install and Configure Ansible**
+
+Ansible will handle the deployment of your JAR file.
+
+**1. Install Ansible:**
+
+```bash
+wget https://bootstrap.pypa.io/get-pip.py
+python3 -m pip install --user ansible
+echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+```
+
+*(Note: If Ansible complains about locale encoding, run `export LC_ALL=C.UTF-8` and `export LANG=C.UTF-8` as shown in Exp 7).*
+
+**2. Create Ansible Files:**
+In your home directory (`~` or `/home/student`), create the inventory file **`hosts.ini`**:
+
+```ini
+[local]
+localhost ansible_connection=local
+
+```
+
+Next, create the deployment playbook **`setup.yml`**:
+
+```yaml
+---
+- name: Deploy Java App
+  hosts: local
+  tasks:
+    - name: Create deployment directory
+      file:
+        path: /home/student/deploy
+        state: directory
+    - name: Copy jar file
+      copy:
+        src: /home/student/hello-world/target/hello-world-1.0-SNAPSHOT.jar
+        dest: /home/student/deploy/
+    - name: Run java app
+      command: java -jar /home/student/deploy/hello-world-1.0-SNAPSHOT.jar
+
+```
+
+---
+
+### **Phase 4: Run Jenkins**
+
+Download and start the Jenkins automation server.
+
+```bash
+wget https://get.jenkins.io/war-stable/latest/jenkins.war
+java -Xms512m -Xmx1024m -jar jenkins.war --httpPort=9090
+
+```
+
+Open your browser and go to `http://localhost:9090`.
+To unlock Jenkins, open a *new* terminal window and retrieve the password:
+
+```bash
+cat ~/.jenkins/secrets/initialAdminPassword
+
+```
+
+---
+
+### **Phase 5: The Jenkins Pipeline**
+
+Once Jenkins is set up (and plugins are installed), create a **New Item** -> **Pipeline**.
+
+Scroll down to the Pipeline script section and paste the native Linux script. Notice how this uses `sh` (shell) commands and executes your Ansible playbook at the end:
+
+```groovy
+pipeline {
+    agent any
+    environment {
+        PROJECT_DIR = "/home/student/hello-world"
+    }
+    stages {
+        stage('Build') {
+            steps {
+                dir("${PROJECT_DIR}") {
+                    sh """
+                    export PATH=$HOME/maven/bin:$PATH
+                    mvn clean package
+                    """
+                }
+            }
+        }
+        stage('Verify') {
+            steps {
+                sh 'ls -l /home/student/hello-world/target/'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                sh """
+                export LC_ALL=C.UTF-8
+                export LANG=C.UTF-8
+                export PATH=$HOME/.local/bin:$PATH
+                ansible-playbook -i /home/student/hosts.ini /home/student/setup.yml
+                """
+            }
+        }
+    }
+    post {
+        success {
+            echo 'BUILD + DEPLOY SUCCESS'
+        }
+        failure {
+            echo 'PIPELINE FAILED'
+        }
+    }
+}
+
+```
+
+Click **Save** and **Build Now**. Jenkins will compile your code and then pass it to Ansible, which will automatically copy the JAR file to your `/deploy` folder and run it.
