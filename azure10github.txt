@@ -1,1 +1,52 @@
-https://github.com/kya23csaiml/azure
+STEP1:On creating organization goto Organization settings goto Policy 
+And Allow Public Projects active 
+STEP2: GOTO GITBASH 
+TYPE COMMANDS AS IN BELOW 
+mkdir maventest1 
+cd maventest1 
+STEP3: to create simple hellow world maven project type command as in below 
+mvn archetype:generate -DgroupId=com.dineshonjava -DartifactId=Javateam -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false 
+. 
+
+STEP3: to add files from local to github Follow the procedure 
+a) First create a repository in github as maventestazure 
+b) Then come to gitbash and type 
+git init 
+git add . 
+git commit -m “azure pipeline example” 
+git branch -M main 
+git remote add origin https://github.com/gurumurthy974/maventestazure.git 
+git push -u origin main 
+After completion of above command my repository looks 
+. 
+
+STEP4: Now goto Azure Devops Organization create Public Project 
+. 
+
+STEP5: SELECT PIPELINE and then click on create pipeline 
+STEP6: After creating Pipeline select type of repo as Github 
+STEP7: It asks for minimum signin verification after that ur screen be as in below select 
+required repository there to run maven project in my case its maventest123 
+. 
+
+STEP8: AFTER REQUIRED REPO IS SELECTED the screen be as in below 
+Drag the screen down check once again the selected repository is correct or not then 
+click on Approve and Install 
+. 
+
+STEP9: It again verifies signin verification of microsoft account 
+You be able to see starter pipeline select for Maven 
+After selecting maven it asks for save and run just click on it 
+. 
+
+Finally You be able to see tasks running its failed bec we shld mention proper path 
+For pom.xml 
+. 
+
+The commits will also be visible in github 
+WE can download and also see individual Raw Log Reports 
+If pipeline permission error comes please complete the registration form of Parallel Jobs after 2 working 
+days(48hrs) u be able to run pipelines for private projects same happens to be for public Projects. 
+.
+
+https://github.com/devstack123/azure
