@@ -1,0 +1,51 @@
+microsoft azure account crreation 
+azure devops
+azure devops organization
+my azure devops organization
+creat a new organization
+
+
+VIVA----------------------------------------------------------------------
+
+Azure DevOps is Microsoft’s cloud-based DevOps platform that provides an integrated suite of services for the entire software development lifecycle — from planning and coding to testing, deployment, and monitoring. It helps teams collaborate efficiently, automate CI/CD pipelines, and manage projects with agility.
+
+🔑 Core Azure DevOps Services
+Service	Purpose	Key Features
+Azure Boards	Project planning & tracking	Agile tools, Kanban boards, sprint planning, burndown charts, customizable workflows
+Azure Repos	Source code management	Unlimited private Git repos, pull requests, branch policies, code reviews, TFVC support
+Azure Pipelines	CI/CD automation	Build, test, and deploy in any language/platform; integrates with GitHub; parallel builds across Linux, macOS, Windows
+Azure Test Plans	Quality assurance	Manual & exploratory testing, defect tracking, test case management
+Azure Artifacts	Package management	Create, host, and share NuGet, npm, Maven packages; integrate artifacts into pipelines
+
+
+🌍 Benefits
+End-to-end lifecycle support: Covers planning, coding, testing, and deployment in one platform.
+
+Cross-platform CI/CD: Works with any language, framework, or cloud provider.
+
+Scalability: Suitable for small teams (free tier) and large enterprises (subscription/pay-per-use).
+
+Integration: Seamlessly connects with GitHub, GitHub Copilot, and other tools.
+
+Security: Built-in DevSecOps practices, GitHub Advanced Security integration.
+
+⚠️ Challenges / Drawbacks
+Learning curve: Teams new to DevOps may find setup complex.
+
+Cost scaling: Free tier is limited; larger teams incur subscription costs.
+
+Customization limits: While flexible, some workflows may require external tools.
+
+📌 Example Use Case
+A mobile app team can:
+
+Use Azure Boards to track user stories and bugs.
+
+Store code in Azure Repos with branch policies.
+
+Automate builds and deployments via Azure Pipelines.
+
+Run manual tests in Azure Test Plans.
+
+Share reusable libraries through Azure Artifacts.
+
